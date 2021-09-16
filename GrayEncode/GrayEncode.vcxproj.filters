@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\sdlgui">
+      <UniqueIdentifier>{87be3617-5951-4bde-a40a-99438cd5ea85}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GrayEncode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\button.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\checkbox.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\colorpicker.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\colorwheel.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\combobox.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\common.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\dropdownbox.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\graph.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\imagepanel.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\imageview.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\label.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\layout.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\loadimages.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\messagedialog.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\nanovg.c">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\popup.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\popupbutton.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\progressbar.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\resources.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\screen.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\slider.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\stackedwidget.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\switchbox.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\tabheader.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\tabwidget.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\textbox.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\theme.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\vscrollpanel.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\widget.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+    <ClCompile Include="sdlgui\window.cpp">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sdlgui\button.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\checkbox.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\colorpicker.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\colorwheel.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\combobox.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\common.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\dropdownbox.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\entypo.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\fontstash.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\formhelper.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\graph.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\imagepanel.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\imageview.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\label.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\layout.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\messagedialog.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\nanort.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\nanovg.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\nanovg_rt.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\popup.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\popupbutton.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\progressbar.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\resources.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\screen.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\sdlguii.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\slider.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\stackedwidget.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\stb_image.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\stb_truetype.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\switchbox.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\tabheader.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\tabwidget.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\textbox.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\theme.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\toolbutton.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\vscrollpanel.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\widget.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+    <ClInclude Include="sdlgui\window.h">
+      <Filter>Source Files\sdlgui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sdlgui\darwin.mm">
+      <Filter>Source Files\sdlgui</Filter>
+    </None>
+  </ItemGroup>
+</Project>

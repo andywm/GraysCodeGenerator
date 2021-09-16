@@ -1,0 +1,289 @@
+/*------------------------------------------------------------------------------
+	()      File:   GrayEncoder.cpp
+	/\      Copyright (c) 2021 Andrew Woodward-May
+   //\\
+  //  \\    Description:
+			  Generates an n Gray's encoding pattern
+------------------------------
+------------------------------
+License Text - The MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in the
+Software without restriction, including without limitation the rights to use, copy,
+modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
+and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+------------------------------------------------------------------------------*/
+#define SDL_MAIN_HANDLED
+
+#include <iostream>
+#include <cmath>
+#include "SDL.h"
+#include "SDL2_gfx.h"
+#include "sdlgui/Screen.h"
+#include "sdlgui/common.h"
+#include "sdlgui/layout.h"
+#include "sdlgui/window.h"
+#include "sdlgui/label.h"
+#include "sdlgui/Button.h"
+#include "sdlgui/textbox.h"
+#include "sdlgui/checkbox.h"
+#include "sdlgui/slider.h"
+#include <xutility>
+
+float mathRadToDeg(float radians)
+{
+	return radians * (180.0f / M_PI);
+}
+
+float mathDegToRad(float degrees)
+{
+	return degrees * (M_PI / 180.0f);
+}
+//using Vec2 = sdlgui::Vector2f;
+
+namespace resolution
+{
+	constexpr int width = 1280;
+	constexpr int height = 960;
+
+	constexpr int centre_x = width / 2;
+	constexpr int centre_y = height / 2;
+}
+
+//IR linear photodiode array
+
+class GrayEncoderApplication
+{
+public:
+	void Draw(SDL_Renderer* renderer)
+	{
+		if (m_bits.empty())
+		{
+			Generate();
+		}
+
+		int beginIndex = 0;
+
+		int lastSegments = 0;
+		int currentSegments = 2;
+
+		for (int n = 1; n <= m_nFactor; n++)
+		{
+			int ourIndex = beginIndex;
+			int ourSegmentCount = currentSegments - lastSegments;
+			int step = 360 / ourSegmentCount;
+
+			for (; ourIndex < (beginIndex + ourSegmentCount); ourIndex++)
+			{
+				if (m_bits[ourIndex])
+				{
+					int thisStepBegin = ourIndex * step;
+					int thisStepEnd = (ourIndex * step) + step;
+					arcRGBA(renderer, resolution::centre_x, resolution::centre_y, m_radius + (10 * n), thisStepBegin, thisStepEnd, 0xff, 0xff, 0xff, 0xff);
+					arcRGBA(renderer, resolution::centre_x, resolution::centre_y, m_radius + (10 * n) - 1, thisStepBegin, thisStepEnd, 0xff, 0xff, 0xff, 0xff);
+					arcRGBA(renderer, resolution::centre_x, resolution::centre_y, m_radius + (10 * n) - 2, thisStepBegin, thisStepEnd, 0xff, 0xff, 0xff, 0xff);
+					arcRGBA(renderer, resolution::centre_x, resolution::centre_y, m_radius + (10 * n) - 3, thisStepBegin, thisStepEnd, 0xff, 0xff, 0xff, 0xff);
+					arcRGBA(renderer, resolution::centre_x, resolution::centre_y, m_radius + (10 * n) - 4, thisStepBegin, thisStepEnd, 0xff, 0xff, 0xff, 0xff);
+					arcRGBA(renderer, resolution::centre_x, resolution::centre_y, m_radius + (10 * n) - 5, thisStepBegin, thisStepEnd, 0xff, 0xff, 0xff, 0xff);
+				}
+			}
+
+			if (n == m_nFactor)
+			{
+				for (int seg = 0; seg < ourSegmentCount; seg++)
+				{
+					int endPointAngle = (seg * step) + step;
+					float endPointAngRad = mathDegToRad(endPointAngle);
+					int rad = m_radius + (10 * n);
+					
+					int endX = resolution::centre_x + rad * cosf(endPointAngRad);
+					int endY = resolution::centre_y + rad * sinf(endPointAngRad);
+
+					aalineRGBA(renderer, resolution::centre_x, resolution::centre_y, endX, endY, 0x11, 0x11, 0x11, 0xff);
+
+				}
+			}
+
+			//update for next pass.
+			lastSegments = currentSegments;
+			currentSegments = currentSegments * 2;
+			beginIndex += ourSegmentCount;
+		}
+	}
+
+	void SetRadius(float v)
+	{
+		m_radius = v;
+	}
+
+	void SetNFactor(int n)
+	{
+
+	}
+
+	void Generate()
+	{
+		m_bits.push_back(0);
+		m_bits.push_back(1);
+		m_nFactor = 2;
+		Grays(1);
+	}
+
+	void Grays(int n)
+	{
+		if (n < m_nFactor)
+		{
+			auto copy = m_bits;
+			std::reverse(copy.begin(), copy.end());
+			std::copy(copy.begin(), copy.end(), std::back_inserter(m_bits));
+
+			Grays(++n);
+		}
+	}
+
+private:
+	std::vector<bool> m_bits;
+	int m_nFactor = 1;
+	float m_radius = 100.0f;
+
+}g_grays;
+
+template<typename T>
+float lerp(T v0, T v1, float t) {
+	return (1 - t) * v0 + t * v1;
+}
+
+void InitTweaks(sdlgui::Screen& guiContext, SDL_Renderer* renderer)
+{
+	auto& guiWindow = guiContext.wdg<sdlgui::Window>("Grays Params")
+		.withLayout<sdlgui::GroupLayout>()
+		//.withFixedSize({100,100})
+		.withPosition({ 100,100 });
+
+	auto& box = guiWindow.widget().boxlayout(sdlgui::Orientation::Vertical, sdlgui::Alignment::Fill, 0, 6);
+
+	auto& sliderBox = box.label("Radius", "sans-bold")
+		.withFixedWidth(80);
+
+	auto& valueBox = box.textbox("");
+
+	auto& slider = box.slider(0.5f, [&valueBox](sdlgui::Slider* s, float v  )
+	{
+		float value = lerp(s->range().first, s->range().second, v);
+		g_grays.SetRadius(value);
+
+		std::string str(16, '\0');
+		auto written = std::snprintf(&str[0], str.size(), "%.2f", value);
+		str.resize(written);
+
+		((sdlgui::TextBox&)valueBox).setValue(str);
+		((sdlgui::TextBox&)valueBox).setAlignment(sdlgui::TextBox::Alignment::Left);
+		
+		std::cout << value << std::endl;
+	});
+	
+	slider.setRange({ 1.0f, 400.0f } );
+
+
+// 	guiWindow.textbox("Radius")
+// 		.withFixedSize(sdlgui::Vector2i(60, 25))
+// 		;
+
+
+// 	guiWindow.label("Push buttons", "sans-bold")._and()
+// 		.widget().boxlayout(sdlgui::Orientation::Vertical, sdlgui::Alignment::Middle, 0, 6)
+// 		.button("Button 1", []() { std::cout << "1 pushed!" << std::endl; })
+// 		.withTooltip("This is plain button tips")._and()
+// 		.button("Button 2", []() { std::cout << "2 pushed!" << std::endl; })
+// 		.withTooltip("This is plain button tips")._and()
+// 		.button("Button 2", []() { std::cout << "3 pushed!" << std::endl; })
+// 		.withTooltip("This is plain button tips")
+// 		;
+// 
+// 	guiWindow.label("Other Shit", "sans-bold")._and()
+// 		.widget().boxlayout(sdlgui::Orientation::Vertical, sdlgui::Alignment::Middle, 0, 6)
+// 		.button("Toggle", [](bool state) { std::cout << "Toggle button state: " << state << std::endl; })
+// 		.withFlags(sdlgui::Button::ToggleButton)._and()
+// 		.checkbox("Flag 1", [](bool state) { std::cout << "Check box 1 state: " << state << std::endl; })
+// 		.withChecked(true)._and()
+// 		.button("Radio")
+// 		.withFlags(sdlgui::Button::RadioButton)
+// 		;
+
+	guiContext.performLayout(renderer);
+}
+
+int main(int argc, char* argv[])
+{
+	std::cout << "Init SDL!\n";
+	SDL_Renderer* renderer = NULL;
+
+	SDL_SetMainReady();
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		std::cout << "Fatal. SDL failed to init video, sdl error: " << SDL_GetError() << std::endl;
+		return -1;
+	}
+
+	SDL_Window* window = SDL_CreateWindow("Gray's Encoder v1.0", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, resolution::width, resolution::height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);;
+	if (window == nullptr)
+	{
+		std::cout << "Fatal. SDL failed to create window, sdl error: " << SDL_GetError() << std::endl;
+		return -1;
+	}
+
+	SDL_GLContext context = SDL_GL_CreateContext(window);
+
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	SDL_UpdateWindowSurface(window);
+
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
+	SDL_RenderClear(renderer);
+
+	sdlgui::Screen guiContext(window, { resolution::width, resolution::height }, "Gray's Encoder v1.0", false, false);
+	InitTweaks(guiContext, renderer);
+
+	bool quit = false;
+	while (!quit)
+	{
+		SDL_Event e;
+		while (SDL_PollEvent(&e) != 0)
+		{
+			//User requests quit
+			if (e.type == SDL_QUIT)
+			{
+				quit = true;
+				std::cout << "Exit World!\n";
+			}
+			guiContext.onEvent(e);
+		}
+
+		SDL_SetRenderDrawColor(renderer, 0x40, 0x40, 0x40, 0xff);
+		SDL_RenderClear(renderer);
+		g_grays.Draw(renderer);
+		guiContext.drawAll();
+
+		// Render the rect to the screen
+		SDL_RenderPresent(renderer);
+	}
+
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+
+	SDL_Quit();
+	return 0;
+}

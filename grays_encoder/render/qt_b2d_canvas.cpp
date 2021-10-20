@@ -33,6 +33,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "render/qt_b2d_canvas.h"
 #include "utility/types_helper.h"
 #include "utility/bits_helper.h"
+#include "utility/globals.h"
+#include "qevent.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -81,7 +83,7 @@ QPainter::CompositionMode Blend2DCompOpToQtCompositionMode( uint32_t compOp )
 QT_B2D_Canvas::QT_B2D_Canvas()
 {
 	m_elapsedTimer.start();
-	setMouseTracking(true);
+	setMouseTracking(false);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 //------------------------------------------------------------------------------
@@ -108,9 +110,14 @@ void QT_B2D_Canvas::paintEvent(QPaintEvent* event)
 //------------------------------------------------------------------------------
 void QT_B2D_Canvas::mousePressEvent(QMouseEvent* event)
 {
-	if (fn_onMouseEvent && event != nullptr)
+	if (fn_relativeMouseMove && event != nullptr)
 	{
-		fn_onMouseEvent(*event);
+		m_mouseCurrent = { (float)event->x(), (float)event->y() };
+
+		//m_mouseState.previous_button_state = m_mouseState.current_button_state;
+		//m_mouseState.current_button_state |= event->button();
+
+		//fn_relativeMouseMove( *event );
 	}
 }
 
@@ -118,9 +125,12 @@ void QT_B2D_Canvas::mousePressEvent(QMouseEvent* event)
 //------------------------------------------------------------------------------
 void QT_B2D_Canvas::mouseReleaseEvent(QMouseEvent* event)
 {
-	if (fn_onMouseEvent && event != nullptr)
+	if (fn_relativeMouseMove && event != nullptr)
 	{
-		fn_onMouseEvent(*event);
+		//m_mouseState.previous_button_state = m_mouseState.current_button_state;
+		//m_mouseState.current_button_state &= ~event->button();
+
+		//fn_onMouseEvent(m_mouseState );
 	}
 }
 
@@ -128,9 +138,31 @@ void QT_B2D_Canvas::mouseReleaseEvent(QMouseEvent* event)
 //------------------------------------------------------------------------------
 void QT_B2D_Canvas::mouseMoveEvent(QMouseEvent* event)
 {
-	if (fn_onMouseEvent && event != nullptr)
+	if (fn_relativeMouseMove && event != nullptr)
 	{
-		fn_onMouseEvent(*event);
+		m_mousePrevious = m_mouseCurrent;
+		m_mouseCurrent = { (float)event->x(), (float)event->y() };
+
+		BLPoint difference = m_mouseCurrent - m_mousePrevious;
+		RelativeMouseMove move = { difference.x, difference.y };
+		//m_mouseState.previous_absolute_pos = m_mouseState.current_absolute_pos;
+		//m_mouseState.current_absolute_pos = { event->x(), event->y() };
+
+		fn_relativeMouseMove( move );
+	}
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void QT_B2D_Canvas::wheelEvent( QWheelEvent* event )
+{
+ 	//QPoint numPixels = event->pixelDelta();
+ 	QPoint numDegrees = event->angleDelta() / 8;
+	if ( !numDegrees.isNull() )
+	{
+		RelativeMouseWheelMove move = { numDegrees.y() };
+		fn_scrollWheelMove(move);
+		event->accept();
 	}
 }
 

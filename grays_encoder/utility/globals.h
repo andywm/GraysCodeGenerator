@@ -39,3 +39,27 @@ struct GlobalData
 };
 
 extern GlobalData g_commandLineArgs;
+
+namespace maths
+{
+	extern const double Tau;
+	extern const double Pi;
+	extern const double Pi2;
+	extern const double PiBy2;
+	extern const double PiBy4;
+	extern const double PiBy8;
+}
+
+#define DegToRad(x) (x*(maths::Pi/180.0f))
+#define RadToDeg(x) (x*(180.0f/maths::Pi))
+
+struct RelativeMouseMove
+{
+	int x;
+	int y;
+};
+
+struct RelativeMouseWheelMove
+{
+	int move;
+};

@@ -113,12 +113,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="application\demo.cpp" />
+    <ClCompile Include="application\grays_encoder.cpp" />
     <ClCompile Include="ui\properties_menu\property_panel.cpp" />
     <ClCompile Include="utility/bits_helper.h" />
     <ClCompile Include="utility/types_helper.h" />
     <ClCompile Include="utility\globals.cpp" />
-    <ClInclude Include="application\demo.h" />
+    <ClInclude Include="application\grays_encoder.h" />
     <ClInclude Include="ui/common/metatypes.h" />
     <ClCompile Include="ui/common/metatypes.cpp" />
     <ClInclude Include="ui\properties_menu\property_panel.h" />

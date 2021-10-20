@@ -1,10 +1,11 @@
 /*------------------------------------------------------------------------------
-	()      File:   demo.h
+	()      File:   grays_encoder.h
 	/\      Copyright (c) 2021 Andrew Woodward-May
    //\\
   //  \\    Description:
-				Derived from blend2d's samples, specifically
-				https://github.com/blend2d/blend2d-samples/blob/master/qt/src/bl-qt-rects.cpp
+				Grays encoder implementation. 
+				 * Generates grays pattern. 
+				 * Handles rendering
 ------------------------------
 ------------------------------
 License Text - The MIT License
@@ -35,60 +36,63 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 class QTreeView;
+class RelativeMouseMove;
+class RelativeMouseWheelMove;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// DemoProgram
+// GraysEncoder
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class DemoProgram
+class GraysEncoder
 {
 public:
-	enum ShapeType
+	struct Mouse
 	{
-		kShapeRect,
-		kShapeRectPath,
-		kShapeRoundRect,
-		kShapePolyPath,
+		BLPoint prev { FLT_MAX, FLT_MAX };
+		BLPoint current { FLT_MAX, FLT_MAX };
 	};
-
-	DemoProgram();
 
 	void InitProperties( QTreeView& view, QObject* parent );
 	void Initialise();
 
 	void UpdateArea( float x, float y );
+	void OnRelativeMouseMove( RelativeMouseMove& data );
+	void OnScrollWheel( RelativeMouseWheelMove& data );
 
 	void Tick( float dT );
 	void Render( BLContext& ctx );
 
-
-	//void OnRendererChanged( const QVariant& qvr );
-	void OnCompOpChanged( const QVariant& qvr );
-	void OnShapeTypeChanged( const QVariant& qvr );
-	//void OnLimitFpsChanged( const QVariant& qvr );
-	void OnSizeChanged( const QVariant& qvr );
-	void OnCountChanged( const QVariant& qvr );
-
-
+	void Generate();
+	void Grays( int n );
 
 private:
-	void setCount( size_t size );
-	double randomSign() noexcept;
-	BLRgba32 randomColor() noexcept;
+	void DrawArcSegment( BLContext& ctx, BLPoint& centre, float radius, float width, float startAngleDeg, float arcAngleDeg );
+
+	void OnGrayChanged( const QVariant& qvr );
+	void OnInnerRadiusChanged( const QVariant& qvr );
+	void OnOuterRadiusChanged( const QVariant& qvr );
+	void OnEndianChanged( const QVariant& qvr );
+	void OnInstrumentationChanged( const QVariant& qvr );
 
 private:
 	PropertyPanel m_propertyPanel;
 	float m_width = 0.0f;
 	float m_height = 0.0f;
 
-private:
-	BLRandom m_random;
+	//Viewport
+	Mouse m_mouse;
+	BLPoint m_userPosition{ 0,0 };
+	float m_zoomLevel{ 1.0f };
 
-	std::vector<BLPoint> m_coords;
-	std::vector<BLPoint> m_steps;
-	std::vector<BLRgba32> m_colors;
-	uint32_t m_compOp;
-	uint32_t m_shapeType;
-	float m_rectSize;
+	//Options
+	int m_nFactor = 1;
+	bool m_invertTree = false;
+	bool m_drawInstrumentation = false;
+	float m_innerRadius = 100.0f;
+	float m_outerRadius = 200.0f;
+
+	//Data
+	std::vector<unsigned int> m_bits;
+	bool m_dirty = true;
 };

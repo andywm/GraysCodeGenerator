@@ -32,7 +32,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <QtWidgets/QMainWindow>
 #include "ui_window_main.h"
 #include "render/qt_b2d_canvas.h"
-#include "application/demo.h"
+#include "application/grays_encoder.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -63,5 +63,5 @@ private:
 
 	QTimer m_timer;
 	QT_B2D_Canvas m_canvas;
-	DemoProgram m_demo;
+	GraysEncoder m_demo;
 };

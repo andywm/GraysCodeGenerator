@@ -48,6 +48,7 @@ WindowMain::WindowMain( QWidget* parent/*=nullptr*/)
 {
     ui.setupUi(this);
 
+
 	QVBoxLayout* vBox = new QVBoxLayout();
 	vBox->setContentsMargins(0, 0, 0, 0);
 	vBox->setSpacing(0);
@@ -69,8 +70,11 @@ WindowMain::WindowMain( QWidget* parent/*=nullptr*/)
 	m_demo.InitProperties( *ui.configurator, parent );
 
 	//bind graphics to demo draw function.
-	m_canvas.SetRenderFunction<DemoProgram, &DemoProgram::Render>(m_demo);
+	m_canvas.SetRenderFunction<GraysEncoder, &GraysEncoder::Render>(m_demo);
+	m_canvas.SetRelativeMouseMoveCallback<GraysEncoder, &GraysEncoder::OnRelativeMouseMove>( m_demo );
+	m_canvas.SetMouseWheelMoveCallback<GraysEncoder, &GraysEncoder::OnScrollWheel>( m_demo );
 	m_canvas.SetNumberOfRenderThreads( m_renderThreads );
+
 }
 
 //------------------------------------------------------------------------------

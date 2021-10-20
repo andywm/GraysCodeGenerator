@@ -46,6 +46,29 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+// Forwards
+//------------------------------------------------------------------------------
+class RelativeMouseMove;
+class RelativeMouseWheelMove;
+// namespace canvas_internal
+// {
+// 	struct Mouse
+// 	{
+// 		enum ButtonState
+// 		{
+// 			LMB = Qt::MouseButton::LeftButton,
+// 			RMB = Qt::MouseButton::RightButton,
+// 			MMB = Qt::MouseButton::MiddleButton,
+// 			Scroll
+// 		};
+// 		uint32_t previous_button_state;
+// 		uint32_t current_button_state;
+// 		BLPoint previous_absolute_pos;
+// 		BLPoint current_absolute_pos;
+// 	};
+// }
+
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // QT_B2D_Canvas
 //------------------------------------------------------------------------------
@@ -66,6 +89,7 @@ public:
 	void mousePressEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
+	void wheelEvent( QWheelEvent* event );
 
 public:
 	//interface
@@ -75,10 +99,16 @@ public:
 		BindFunction<T, BLContext, fun_ptr>(obj, fn_onRenderB2D);
 	}	
 	
-	template<typename T, void (T::*fun_ptr)(QMouseEvent&)>
-	void SetMouseCallbackFunction(T& obj)
+	template<typename T, void (T::*fun_ptr)(RelativeMouseMove&)>
+	void SetRelativeMouseMoveCallback(T& obj)
 	{
-		BindFunction<T, QMouseEvent, fun_ptr>(obj, fn_onMouseEvent);
+		BindFunction<T, RelativeMouseMove, fun_ptr>(obj, fn_relativeMouseMove);
+	}	
+	
+	template<typename T, void (T::* fun_ptr)(RelativeMouseWheelMove&)>
+	void SetMouseWheelMoveCallback( T& obj )
+	{
+		BindFunction<T, RelativeMouseWheelMove, fun_ptr>( obj, fn_scrollWheelMove );
 	}
 
 	inline const BLImage& GetImageBuffer() const;
@@ -111,8 +141,10 @@ public:
 	BLImage m_blImageBuffer;
 
 	QElapsedTimer m_elapsedTimer;
+	BLPoint m_mousePrevious;
+	BLPoint m_mouseCurrent;;
 
-
+	//canvas_internal::Mouse m_mouseState;
 	uint32_t m_renderThreads = 16;
 	uint32_t m_frameCount = 0;
 	bool m_dirty = true;
@@ -120,7 +152,8 @@ public:
 
 private:
 	std::function<void(BLContext&)> fn_onRenderB2D;
-	std::function<void(QMouseEvent&)> fn_onMouseEvent;
+	std::function<void(RelativeMouseMove&)> fn_relativeMouseMove;
+	std::function<void(RelativeMouseWheelMove&)> fn_scrollWheelMove;
 };
 
 //------------------------------------------------------------------------------

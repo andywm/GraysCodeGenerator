@@ -239,10 +239,10 @@ void PropertiesDelegate::setModelData( QWidget* editor, QAbstractItemModel* mode
 	}
 	case MetadataType::Boolean:
 	{
-		// 		bool value = index.model()->data( index, Qt::EditRole ).toBool();
-		// 
-		// 		QCheckBox* spinBox = static_cast<QCheckBox*>(editor);
-		// 		spinBox->setChecked( value );
+		QCheckBox* spinBox = static_cast<QCheckBox*>(editor);
+
+		bool value = spinBox->isChecked();
+		model->setData( index, value, Qt::EditRole );
 
 		break;
 	}

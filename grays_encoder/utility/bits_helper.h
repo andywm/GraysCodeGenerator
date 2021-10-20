@@ -30,3 +30,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define SET_ENUM_BIT(x) 0x1 << 1
 #define GET_ENUM_BIT(x) 0x1 >> 1
 #define TRY_SET_BIT(DO, BIT) (DO? BIT : 0)
+
+// move byte 3 to byte 0  // move byte 1 to byte 2 /// move byte 2 to byte 1 // byte 0 to byte 3
+#define FLIP_ENDIAN(x) ( ((x >> 24) & 0xff) | ((x << 8) & 0xff0000) | ((x >> 8) & 0xff00) |  ((x << 24) & 0xff000000) )

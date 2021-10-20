@@ -31,3 +31,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //------------------------------------------------------------------------------
 
 GlobalData g_commandLineArgs;
+
+
+namespace maths
+{
+	const double Tau = 6.28318530717958647692;		//360
+	const double Pi = 3.14159265358979323846;		//180
+	const double Pi2 = Tau;							//alias 2 Pi
+	const double PiBy2 = 1.57079632679489661923;	//90
+	const double PiBy4 = 0.785398163397448309615;	//45
+}

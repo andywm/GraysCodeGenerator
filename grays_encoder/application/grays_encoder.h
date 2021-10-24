@@ -29,15 +29,21 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------------------------------------------------*/
 #pragma once
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 #include <blend2d/geometry.h>
 #include <blend2d/rgba.h>
 #include <blend2d/random.h>
 #include "ui/properties_menu/property_panel.h"
+#include "core/render_action.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class QTreeView;
-class RelativeMouseMove;
-class RelativeMouseWheelMove;
+
+//------------------------------------------------------------------------------
+// Forwards
+//------------------------------------------------------------------------------
+class BLContext;
+class BLPoint;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -47,45 +53,26 @@ class RelativeMouseWheelMove;
 class GraysEncoder
 {
 public:
-	struct Mouse
-	{
-		BLPoint prev { FLT_MAX, FLT_MAX };
-		BLPoint current { FLT_MAX, FLT_MAX };
-	};
+	GraysEncoder();
 
-	void InitProperties( QTreeView& view, QObject* parent );
-	void Initialise();
-
-	void UpdateArea( float x, float y );
-	void OnRelativeMouseMove( RelativeMouseMove& data );
-	void OnScrollWheel( RelativeMouseWheelMove& data );
-
-	void Tick( float dT );
 	void Render( BLContext& ctx );
-
 	void Generate();
 	void Grays( int n );
 
-private:
+	actions::RenderAction& GetRenderAction();
+
 	void DrawArcSegment( BLContext& ctx, BLPoint& centre, float radius, float width, float startAngleDeg, float arcAngleDeg );
 
-	void OnGrayChanged( const QVariant& qvr );
-	void OnInnerRadiusChanged( const QVariant& qvr );
-	void OnOuterRadiusChanged( const QVariant& qvr );
-	void OnEndianChanged( const QVariant& qvr );
-	void OnInstrumentationChanged( const QVariant& qvr );
+	void SetGrayNumber( const uint8_t n );
+	void SetInnerRadius( const double rad );
+	void SetOuterRadius( const double rad );
+	void SetInvert( const bool val );
+	void DrawInstrumentation( const bool val );
 
 private:
-	PropertyPanel m_propertyPanel;
-	float m_width = 0.0f;
-	float m_height = 0.0f;
+	actions::RenderActionT<GraysEncoder, &GraysEncoder::Render> m_renderAction;
 
-	//Viewport
-	Mouse m_mouse;
-	BLPoint m_userPosition{ 0,0 };
-	float m_zoomLevel{ 1.0f };
-
-	//Options
+	//Config
 	int m_nFactor = 1;
 	bool m_invertTree = false;
 	bool m_drawInstrumentation = false;
@@ -94,5 +81,4 @@ private:
 
 	//Data
 	std::vector<unsigned int> m_bits;
-	bool m_dirty = true;
 };

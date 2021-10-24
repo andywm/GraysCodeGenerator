@@ -32,12 +32,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.1.3</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;gui;widgets;printsupport</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.1.3</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtModules>core;gui;widgets;printsupport</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -114,11 +114,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\grays_encoder.cpp" />
+    <ClCompile Include="application\printing.cpp" />
     <ClCompile Include="ui\properties_menu\property_panel.cpp" />
     <ClCompile Include="utility/bits_helper.h" />
     <ClCompile Include="utility/types_helper.h" />
     <ClCompile Include="utility\globals.cpp" />
+    <ClInclude Include="application\core\render_action.h" />
     <ClInclude Include="application\grays_encoder.h" />
+    <ClInclude Include="application\printing.h" />
     <ClInclude Include="ui/common/metatypes.h" />
     <ClCompile Include="ui/common/metatypes.cpp" />
     <ClInclude Include="ui\properties_menu\property_panel.h" />
@@ -133,8 +136,8 @@
     <ClCompile Include="ui/properties_menu/properties_entry.cpp" />
     <QtMoc Include="ui/properties_menu/properties_model.h" />
     <ClCompile Include="ui/properties_menu/properties_model.cpp" />
-    <QtMoc Include="render/qt_b2d_canvas.h" />
-    <ClCompile Include="render/qt_b2d_canvas.cpp" />
+    <QtMoc Include="render\blend_2d_render_widget.h" />
+    <ClCompile Include="render\blend_2d_render_widget.cpp" />
     <QtRcc Include="ui/window_main/window_main.qrc" />
     <QtUic Include="ui/window_main/window_main.ui" />
     <QtMoc Include="ui/window_main/window_main.h" />

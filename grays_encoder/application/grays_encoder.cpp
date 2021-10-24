@@ -41,75 +41,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// Demo Program
+// GraysEncoder
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void GraysEncoder::InitProperties( QTreeView& view, QObject* parent )
+GraysEncoder::GraysEncoder()
+	: m_renderAction(*this)
 {
-	//init
-	m_propertyPanel.Initialise( view, parent );
 
-	//Gray Number
-	m_propertyPanel.AddProperty( "root.gray", "Gray N", 1, 1, 31 )
-		.Connect<GraysEncoder, &GraysEncoder::OnGrayChanged>( *this );
-
-	//Endianness.
-	m_propertyPanel.AddProperty( "root.instrum", "Draw Instrumentation", m_drawInstrumentation )
-		.Connect<GraysEncoder, &GraysEncoder::OnInstrumentationChanged>( *this );
-
-	//Endianness.
-	m_propertyPanel.AddProperty( "root.endian", "Inverted", m_invertTree )
-		.Connect<GraysEncoder, &GraysEncoder::OnEndianChanged>( *this );
-
-	//Radius
-	m_propertyPanel.AddProperty( "root.innerrad", "Inner Radius", 100.0f, 0.0f, 200.0f )
-		.Connect<GraysEncoder, &GraysEncoder::OnInnerRadiusChanged>( *this );
-	m_propertyPanel.AddProperty( "root.outerrad", "Outer Radius", 150.0f, 0.0f, 300.0f )
-		.Connect<GraysEncoder, &GraysEncoder::OnOuterRadiusChanged>( *this );
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void GraysEncoder::Initialise()
-{
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void GraysEncoder::UpdateArea( float x, float y )
-{
-	m_width = x;
-	m_height = y;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void GraysEncoder::OnRelativeMouseMove( RelativeMouseMove& data )
-{
-	m_userPosition += { (float)data.x, (float)data.y };
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void GraysEncoder::OnScrollWheel( RelativeMouseWheelMove& data )
-{
-	if( data.move > 0 )
-	{
-		m_zoomLevel = m_zoomLevel * 1.25f;
-	}
-	else
-	{
-		m_zoomLevel = m_zoomLevel * 0.75f;
-	}
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void GraysEncoder::Tick(const float dT)
-{
 }
 
 //------------------------------------------------------------------------------
@@ -162,15 +103,12 @@ void GraysEncoder::DrawArcSegment(
 //------------------------------------------------------------------------------
 void GraysEncoder::Render( BLContext& ctx )
 {
-	if ( m_bits.empty() || m_dirty )
+	if ( m_bits.empty() )
 	{
-		m_bits.clear();
 		Generate();
 	}
 
 	BLPoint origin = { 0, 0 };
-	const double x = m_width / 2.0;
-	const double y = m_height / 2.0;
 
 	//Render Options
 	ctx.setRenderingQuality( BL_RENDERING_QUALITY_ANTIALIAS );
@@ -179,10 +117,6 @@ void GraysEncoder::Render( BLContext& ctx )
 	//Clear Black
 	ctx.setFillStyle( BLRgba32( 0xFF000000 ) );
 	ctx.fillAll();
-
-	//viewport.
-	ctx.translate( x + m_userPosition.x, y + m_userPosition.y );
-	ctx.scale( m_zoomLevel );
 
 	//draw in white.
 	ctx.setFillStyle( BLRgba32( 0xFFFFFFFF ) );
@@ -291,32 +225,41 @@ void GraysEncoder::Generate()
 
 	m_bits[1] = 1;
 	Grays( 2 );
-
-	m_dirty = false;
 }
 
 //------------------------------------------------------------------------------
-// GraysEncoder Program Config Changed
+// Actions
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void GraysEncoder::OnGrayChanged( const QVariant& qvr )
+actions::RenderAction& GraysEncoder::GetRenderAction()
 {
-	int n = qvr.toInt();
+	return m_renderAction;
+}
+
+//------------------------------------------------------------------------------
+// Config Changed
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void GraysEncoder::SetGrayNumber( const uint8_t n )
+{
 	if ( n != m_nFactor )
 	{
 		m_nFactor = n;
-		m_dirty = true;
+
+		m_bits.clear();
 		Generate();
 	}
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void GraysEncoder::OnInnerRadiusChanged( const QVariant& qvr )
+void GraysEncoder::SetInnerRadius( const double rad )
 {
-	m_innerRadius = qvr.toFloat();
+	m_innerRadius = rad;
 
 	if ( m_innerRadius > m_outerRadius - 1 )
 	{
@@ -326,9 +269,9 @@ void GraysEncoder::OnInnerRadiusChanged( const QVariant& qvr )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void GraysEncoder::OnOuterRadiusChanged( const QVariant& qvr )
+void GraysEncoder::SetOuterRadius( const double rad )
 {
-	m_outerRadius = qvr.toFloat();
+	m_outerRadius = rad;
 
 	if ( m_outerRadius < m_innerRadius + 1 )
 	{
@@ -338,15 +281,14 @@ void GraysEncoder::OnOuterRadiusChanged( const QVariant& qvr )
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void GraysEncoder::OnEndianChanged( const QVariant& qvr )
+void GraysEncoder::SetInvert( const bool val )
 {
-	m_invertTree = qvr.toBool();
+	m_invertTree = val;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void GraysEncoder::OnInstrumentationChanged( const QVariant& qvr )
+void GraysEncoder::DrawInstrumentation( const bool val )
 {
-	m_drawInstrumentation = qvr.toBool();
+	m_drawInstrumentation = val;
 }
-

@@ -29,51 +29,37 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-#include <QtWidgets/QMainWindow>
-#include <QTimer>
-#include "ui_window_main.h"
-#include "render/blend_2d_render_widget.h"
-#include "application/grays_encoder.h"
-#include "application/printing.h"
+
 //------------------------------------------------------------------------------
+// Forwards
 //------------------------------------------------------------------------------
+class BLContext;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// WindowMain
+// RenderAction
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class WindowMain : public QMainWindow
+namespace actions
 {
-    Q_OBJECT
+	class RenderAction
+	{
+	public:
+		virtual void Render( BLContext& context ) = 0;
+	};
 
-public:
-    WindowMain(QWidget *parent = nullptr);
+	template<class Base, void (Base::*renderFn)(BLContext&) >
+	class RenderActionT final : public RenderAction
+	{
+	public:
+		RenderActionT( Base& self ) : m_self( self ){}
 
-	void HandleCommandLine();
+		virtual void Render( BLContext& context ) override
+		{	
+			(m_self.*renderFn)( context );
+		}
 
-	Q_SLOT void onOpenPrintDialog();
-	Q_SLOT void onTimer();
-
-private:
-	void InitMenus();
-	void InitMenuBar();
-	void InitGraysConfig();
-
-	//Configuration Changed
-	void OnGrayChanged( const QVariant& qvr );
-	void OnInnerRadiusChanged( const QVariant& qvr );
-	void OnOuterRadiusChanged( const QVariant& qvr );
-	void OnEndianChanged( const QVariant& qvr );
-	void OnInstrumentationChanged( const QVariant& qvr );
-
-private:
-    Ui::window_main_Class ui;
-	QAction* m_actionPrint = nullptr;
-
-	QTimer m_timer;
-	GraysEncoder m_grays;
-	PropertyPanel m_propertyPanel;
-	Blend2DRenderWidget m_canvas;
-	PrintingService m_printingService;
-};
+	private:
+		Base& m_self;
+	};
+}

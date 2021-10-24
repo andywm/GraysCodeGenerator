@@ -52,14 +52,3 @@ namespace maths
 
 #define DegToRad(x) (x*(maths::Pi/180.0f))
 #define RadToDeg(x) (x*(180.0f/maths::Pi))
-
-struct RelativeMouseMove
-{
-	int x;
-	int y;
-};
-
-struct RelativeMouseWheelMove
-{
-	int move;
-};

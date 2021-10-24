@@ -1,9 +1,9 @@
 /*------------------------------------------------------------------------------
-	()      File:   window_main.h
+	()      File:   b2d_printing.cpp
 	/\      Copyright (c) 2021 Andrew Woodward-May
    //\\
   //  \\    Description:
-			  Main window for gray's encoder application.
+				Handles rendering to a print target
 ------------------------------
 ------------------------------
 License Text - The MIT License
@@ -27,53 +27,22 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------------------------------------------------*/
 #pragma once
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-#include <QtWidgets/QMainWindow>
-#include <QTimer>
-#include "ui_window_main.h"
-#include "render/blend_2d_render_widget.h"
-#include "application/grays_encoder.h"
-#include "application/printing.h"
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
+#include <QImage>
+#include <blend2d/image.h>
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-// WindowMain
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-class WindowMain : public QMainWindow
+class B2DPrinting
 {
-    Q_OBJECT
 
+// 	QPainter painter( this );
+// 	if ( m_dirty )
+// 	{
+// 		OnRender();
+// 	}
+// 
+// 	painter.drawImage( QPoint( 0, 0 ), m_qtScreenBuffer );
 public:
-    WindowMain(QWidget *parent = nullptr);
-
-	void HandleCommandLine();
-
-	Q_SLOT void onOpenPrintDialog();
-	Q_SLOT void onTimer();
-
-private:
-	void InitMenus();
-	void InitMenuBar();
-	void InitGraysConfig();
-
-	//Configuration Changed
-	void OnGrayChanged( const QVariant& qvr );
-	void OnInnerRadiusChanged( const QVariant& qvr );
-	void OnOuterRadiusChanged( const QVariant& qvr );
-	void OnEndianChanged( const QVariant& qvr );
-	void OnInstrumentationChanged( const QVariant& qvr );
-
-private:
-    Ui::window_main_Class ui;
-	QAction* m_actionPrint = nullptr;
-
-	QTimer m_timer;
-	GraysEncoder m_grays;
-	PropertyPanel m_propertyPanel;
-	Blend2DRenderWidget m_canvas;
-	PrintingService m_printingService;
+	QImage m_qtScreenBuffer;
+	BLImage m_blBackBuffer;
 };

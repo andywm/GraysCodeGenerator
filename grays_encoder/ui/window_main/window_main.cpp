@@ -29,6 +29,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
 #include "ui/window_main/window_main.h"
 #include "utility/globals.h"
 //------------------------------------------------------------------------------
@@ -39,63 +41,148 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // WindowMain
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-uint32_t WindowMain::m_renderThreads = 1;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 WindowMain::WindowMain( QWidget* parent/*=nullptr*/)
 	: QMainWindow( parent )
 {
-    ui.setupUi(this);
+	QString windowTitle = QString::fromUtf8( "Andy's Grays Encoder" );
+	setWindowTitle( windowTitle );
 
+	HandleCommandLine();
+
+	//init program loop
+	//m_timer.setInterval( 60 / 1000.0f );
+	//connect( &m_timer, SIGNAL( timeout() ), this, SLOT( onTimer() ) );
+
+	InitMenus();
+
+
+	//m_grays.Initialise()
+
+
+	m_canvas.SetRenderFunction( m_grays.GetRenderAction() );
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::InitMenus()
+{
+	ui.setupUi( this );
 
 	QVBoxLayout* vBox = new QVBoxLayout();
-	vBox->setContentsMargins(0, 0, 0, 0);
-	vBox->setSpacing(0);
+	vBox->setContentsMargins( 0, 0, 0, 0 );
+	vBox->setSpacing( 0 );
 
 	QGridLayout* grid = new QGridLayout();
-	grid->setContentsMargins(5, 5, 5, 5);
-	grid->setSpacing(5);
+	grid->setContentsMargins( 5, 5, 5, 5 );
+	grid->setSpacing( 5 );
 
-	vBox->addLayout(grid);
+	vBox->addLayout( grid );
 	vBox->addWidget( &m_canvas );
 	ui.Viewport->setLayout( vBox );
 
-	//loop
-	m_timer.setInterval( 60 / 1000.0f );
-	connect( &m_timer, SIGNAL( timeout() ), this, SLOT( onTimer() ) );
+	InitMenuBar();
+	InitGraysConfig();
+}
 
-	//demo
-	m_demo.Initialise();
-	m_demo.InitProperties( *ui.configurator, parent );
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::InitMenuBar()
+{
+	if ( m_actionPrint = ui.menuFile->addAction( "Print" ) )
+	{
+		connect( m_actionPrint, SIGNAL( QAction::triggered() ), this, SLOT( onOpenPrintDialog() ) );
+	}
+}
 
-	//bind graphics to demo draw function.
-	m_canvas.SetRenderFunction<GraysEncoder, &GraysEncoder::Render>(m_demo);
-	m_canvas.SetRelativeMouseMoveCallback<GraysEncoder, &GraysEncoder::OnRelativeMouseMove>( m_demo );
-	m_canvas.SetMouseWheelMoveCallback<GraysEncoder, &GraysEncoder::OnScrollWheel>( m_demo );
-	m_canvas.SetNumberOfRenderThreads( m_renderThreads );
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::InitGraysConfig()
+{
+	//init
+	m_propertyPanel.Initialise( *ui.configurator, parent() );
 
+	//Gray Number
+	m_propertyPanel.AddProperty( "root.gray", "Gray N", 1, 1, 31 )
+		.Connect<WindowMain, &WindowMain::OnGrayChanged>( *this );
+
+	//Endianness.
+	m_propertyPanel.AddProperty( "root.instrum", "Draw Instrumentation", true )
+		.Connect<WindowMain, &WindowMain::OnInstrumentationChanged>( *this );
+
+	//Endianness.
+	m_propertyPanel.AddProperty( "root.endian", "Inverted", true )
+		.Connect<WindowMain, &WindowMain::OnEndianChanged>( *this );
+
+	//Radius
+	m_propertyPanel.AddProperty( "root.innerrad", "Inner Radius", 100.0f, 0.0f, 200.0f )
+		.Connect<WindowMain, &WindowMain::OnInnerRadiusChanged>( *this );
+
+	m_propertyPanel.AddProperty( "root.outerrad", "Outer Radius", 150.0f, 0.0f, 300.0f )
+		.Connect<WindowMain, &WindowMain::OnOuterRadiusChanged>( *this );
+}
+
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::OnGrayChanged( const QVariant& qvr )
+{
+	m_grays.SetGrayNumber( qvr.toInt() );
+	m_canvas.Invalidation();
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::OnInnerRadiusChanged( const QVariant& qvr )
+{
+	m_grays.SetInnerRadius( qvr.toDouble() );
+	m_canvas.Invalidation();
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::OnOuterRadiusChanged( const QVariant& qvr )
+{
+	m_grays.SetOuterRadius( qvr.toDouble() );
+	m_canvas.Invalidation();
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::OnEndianChanged( const QVariant& qvr )
+{
+	m_grays.SetInvert( qvr.toBool() );
+	m_canvas.Invalidation();
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::OnInstrumentationChanged( const QVariant& qvr )
+{
+	m_grays.DrawInstrumentation( qvr.toBool() );
+	m_canvas.Invalidation();
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void WindowMain::HandleCommandLine()
 {
-	bool checkNextForRT = false;
-	for( const std::string& str : g_commandLineArgs.args )
-	{	
-		if( checkNextForRT )
-		{
-			if ( std::all_of( str.begin(), str.end(), ::isdigit ) )
-			{
-				m_renderThreads = atoi( str.c_str() );
-			}
-		}
+	using iter_str = std::vector<std::string>::iterator;
 
-		checkNextForRT = false;
-		if( str._Equal("set-render-threads") )
+	//defaults
+	m_canvas.SetNumberOfRenderThreads( 16 );
+
+	for( iter_str strIter = g_commandLineArgs.args.begin(); strIter != g_commandLineArgs.args.end(); ++strIter )
+	{	
+		if( strIter->_Equal("set-render-threads") && ++strIter != g_commandLineArgs.args.end() )
 		{
-			checkNextForRT = true;
+			std::string& candiateNumber = *strIter;
+			if( std::all_of( candiateNumber.begin(), candiateNumber.end(), ::isdigit ) )
+			{
+				m_canvas.SetNumberOfRenderThreads( atoi( candiateNumber.c_str() ) );
+			}
 		}
 	}
 }
@@ -104,48 +191,32 @@ void WindowMain::HandleCommandLine()
 //------------------------------------------------------------------------------
 Q_SLOT void WindowMain::onTimer()
 {
-	const BLImage& buffer = m_canvas.GetImageBuffer();
-	m_demo.UpdateArea( buffer.width(), buffer.height() );
-	m_demo.Tick( 60/1000.0f );
-	m_canvas.OnUpdateCanvas( true );
-	_updateTitle();
+	//const BLImage& buffer = m_canvas.GetImageBuffer();
+	//m_graysService.UpdateArea( buffer.width(), buffer.height() );
+	//m_graysService.Tick( 60/1000.0f );
+	//m_canvas.OnUpdateCanvas( true );
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void WindowMain::_updateTitle()
-{
-	// 	char buf[256];
-	// 	snprintf(buf, 256, "Rectangles Sample [%dx%d] [Size=%d Count=%zu] [%.1f FPS]",
-	// 		m_canvas.width(),
-	// 		m_canvas.height(),
-	// 		int(m_rectSize),
-	// 		m_coords.size(),
-	// 		m_canvas.GetFPS());
 
-	QString title = QString::fromUtf8( "Demo Program" /*buf*/ );
-	if ( title != windowTitle() )
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::onOpenPrintDialog()
+{
+	QPrinter printer;
+	int dpi = printer.resolution();
+	
+	printer.pageLayout();
+
+	QPrintDialog dialog( &printer, this );
+	dialog.setWindowTitle( tr( "Print Document" ) );
+	
+// 	if ( editor->textCursor().hasSelection() )
+// 	{
+// 		dialog.addEnabledOption( QAbstractPrintDialog:: );
+// 	}
+
+	if ( dialog.exec() != QDialog::Accepted )
 	{
-		setWindowTitle( title );
+		return;
 	}
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void WindowMain::showEvent(QShowEvent* event) 
-{
-	m_timer.start(); 
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void WindowMain::hideEvent(QHideEvent* event)
-{
-	m_timer.stop();
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void WindowMain::keyPressEvent(QKeyEvent* event)
-{
 }

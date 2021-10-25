@@ -90,7 +90,7 @@ private:
 };
 
 //------------------------------------------------------------------------------
-// Inline for QT_B2D_Canvas
+// Inline for Blend2DRenderWidget
 //------------------------------------------------------------------------------
 
 inline void Blend2DRenderWidget::SetRenderFunction( actions::RenderAction& render )

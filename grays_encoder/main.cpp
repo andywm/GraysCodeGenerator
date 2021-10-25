@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
     WindowMain window;
     window.setMinimumSize(QSize(400, 320));
     window.resize(QSize(580, 520));
+    window.setWindowTitle( "Grays Code Generator" );
     window.show();
 
     return a.exec();

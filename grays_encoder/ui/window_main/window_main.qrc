@@ -1,4 +1,5 @@
 <RCC>
-    <qresource prefix="window_main">
+    <qresource prefix="/window_main">
+        <file>appico.ico</file>
     </qresource>
 </RCC>

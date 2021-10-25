@@ -121,7 +121,8 @@
     <ClCompile Include="utility\globals.cpp" />
     <ClInclude Include="application\core\render_action.h" />
     <ClInclude Include="application\grays_encoder.h" />
-    <ClInclude Include="application\printing.h" />
+    <ClInclude Include="utility\version.h" />
+    <QtMoc Include="application\printing.h" />
     <ClInclude Include="ui/common/metatypes.h" />
     <ClCompile Include="ui/common/metatypes.cpp" />
     <ClInclude Include="ui\properties_menu\property_panel.h" />
@@ -143,6 +144,9 @@
     <QtMoc Include="ui/window_main/window_main.h" />
     <ClCompile Include="ui/window_main/window_main.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="grays_encoder.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

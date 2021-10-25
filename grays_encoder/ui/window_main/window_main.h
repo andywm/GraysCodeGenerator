@@ -30,7 +30,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #include <QtWidgets/QMainWindow>
-#include <QTimer>
 #include "ui_window_main.h"
 #include "render/blend_2d_render_widget.h"
 #include "application/grays_encoder.h"
@@ -50,12 +49,12 @@ class WindowMain : public QMainWindow
 public:
     WindowMain(QWidget *parent = nullptr);
 
-	void HandleCommandLine();
-
-	Q_SLOT void onOpenPrintDialog();
-	Q_SLOT void onTimer();
+private slots:
+	void onOpenPrintDialog();
+	void onAbout();
 
 private:
+	void HandleCommandLine();
 	void InitMenus();
 	void InitMenuBar();
 	void InitGraysConfig();
@@ -68,10 +67,12 @@ private:
 	void OnInstrumentationChanged( const QVariant& qvr );
 
 private:
+	//menu
     Ui::window_main_Class ui;
 	QAction* m_actionPrint = nullptr;
+	QAction* m_actionAbout = nullptr;
 
-	QTimer m_timer;
+	//application
 	GraysEncoder m_grays;
 	PropertyPanel m_propertyPanel;
 	Blend2DRenderWidget m_canvas;

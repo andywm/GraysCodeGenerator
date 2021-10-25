@@ -33,6 +33,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <QtPrintSupport/QPrinter>
 #include "ui/window_main/window_main.h"
 #include "utility/globals.h"
+#include "QLabel"
+#include "QAbstractButton"
+#include "QPushButton"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -47,22 +50,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 WindowMain::WindowMain( QWidget* parent/*=nullptr*/)
 	: QMainWindow( parent )
 {
-	QString windowTitle = QString::fromUtf8( "Andy's Grays Encoder" );
-	setWindowTitle( windowTitle );
-
 	HandleCommandLine();
-
-	//init program loop
-	//m_timer.setInterval( 60 / 1000.0f );
-	//connect( &m_timer, SIGNAL( timeout() ), this, SLOT( onTimer() ) );
-
 	InitMenus();
 
-
-	//m_grays.Initialise()
-
-
 	m_canvas.SetRenderFunction( m_grays.GetRenderAction() );
+	m_printingService.SetRenderFunction( m_grays.GetRenderAction() );
 }
 
 //------------------------------------------------------------------------------
@@ -91,9 +83,14 @@ void WindowMain::InitMenus()
 //------------------------------------------------------------------------------
 void WindowMain::InitMenuBar()
 {
-	if ( m_actionPrint = ui.menuFile->addAction( "Print" ) )
+	if( m_actionPrint = ui.menuFile->addAction( "Print" ) )
 	{
-		connect( m_actionPrint, SIGNAL( QAction::triggered() ), this, SLOT( onOpenPrintDialog() ) );
+		connect( m_actionPrint, SIGNAL( triggered() ), this, SLOT( onOpenPrintDialog() ) );
+	}	
+	
+	if( m_actionAbout = ui.menuHelp->addAction( "About" ) )
+	{
+		connect( m_actionAbout, SIGNAL( triggered() ), this, SLOT( onAbout() ) );
 	}
 }
 
@@ -189,34 +186,34 @@ void WindowMain::HandleCommandLine()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Q_SLOT void WindowMain::onTimer()
-{
-	//const BLImage& buffer = m_canvas.GetImageBuffer();
-	//m_graysService.UpdateArea( buffer.width(), buffer.height() );
-	//m_graysService.Tick( 60/1000.0f );
-	//m_canvas.OnUpdateCanvas( true );
-}
-
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 void WindowMain::onOpenPrintDialog()
 {
-	QPrinter printer;
-	int dpi = printer.resolution();
-	
-	printer.pageLayout();
+	m_printingService.Run();
+}
 
-	QPrintDialog dialog( &printer, this );
-	dialog.setWindowTitle( tr( "Print Document" ) );
-	
-// 	if ( editor->textCursor().hasSelection() )
-// 	{
-// 		dialog.addEnabledOption( QAbstractPrintDialog:: );
-// 	}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void WindowMain::onAbout()
+{
+	QDialog dialogBox;
+	dialogBox.setWindowTitle( "About" );
 
-	if ( dialog.exec() != QDialog::Accepted )
-	{
-		return;
-	}
+	QVBoxLayout* vlayout = new QVBoxLayout;
+	QLabel* title = new QLabel( "Grays Code Generator" );
+	QLabel* version = new QLabel( APP_VERSION );
+	QLabel* copyright = new QLabel( APP_COPYRIGHT );
+
+	QFont font = title->font();
+	font.setPointSize( 22 );
+	font.setBold( true );
+	title->setFont( font );
+
+	vlayout->addWidget( title );
+	vlayout->addWidget( version );
+	vlayout->addWidget( copyright );
+	vlayout->setSizeConstraint( QLayout::SetFixedSize );
+	dialogBox.setLayout( vlayout );
+	dialogBox.show();
+
+	dialogBox.exec();
 }

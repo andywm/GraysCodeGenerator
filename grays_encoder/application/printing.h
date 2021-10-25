@@ -3,7 +3,7 @@
 	/\      Copyright (c) 2021 Andrew Woodward-May
    //\\
   //  \\    Description:
-				Handles rendering to a print target
+				Handles printing
 ------------------------------
 ------------------------------
 License Text - The MIT License
@@ -27,18 +27,53 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------------------------------------------------*/
 #pragma once
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+#include <QPrinter>
 #include <QImage>
 #include <blend2d/image.h>
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+// Forwards
 //------------------------------------------------------------------------------
-class PrintingService
+class QPrinter;
+namespace actions
 {
+	class RenderAction;
+}
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+class PrintingService : public QObject
+{
+	Q_OBJECT;
 
 public:
-	//QPrinter m_printer;
+	PrintingService( QObject* parent = nullptr );
 
-	//QImage m_qtScreenBuffer;
-	//BLImage m_blBackBuffer;
+	void Run();
+	void InitPrintBuffer();
+	inline void SetRenderFunction( actions::RenderAction& render );
+
+private slots:
+	void PrintPreview( QPrinter* printer );
+
+private:
+	actions::RenderAction* m_renderer = nullptr;
+
+	QPrinter m_printer;
+
+	QImage m_renderBuffer;
+	BLImage m_b2dRenderTarget;
 };
+
+//------------------------------------------------------------------------------
+// Inline for PrintingService
+//------------------------------------------------------------------------------
+
+inline void PrintingService::SetRenderFunction( actions::RenderAction& render )
+{
+	m_renderer = &render;
+}

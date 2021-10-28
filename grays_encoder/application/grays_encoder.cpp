@@ -34,6 +34,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <blend2d/context.h>
 #include <QVariant>
 #include <qevent.h>
+#include <algorithm> 
 #include "application/grays_encoder.h"
 #include "utility/globals.h"
 //------------------------------------------------------------------------------
@@ -128,14 +129,15 @@ void GraysEncoder::Render( BLContext& ctx )
 	const double stepAngle = 360.0f / segmentCount;
 	const double radDifference = m_outerRadius - m_innerRadius;
 	const double trackWidth = radDifference / m_nFactor;
+	double beginAngle = 0;
 
+#if defined( USE_SECTOR_RENDER )
 	//iterates over the circle by each step angle. The inner loop handles different
 	//orbitals representing bits.
-	double beginAngle = 0;
-	for ( unsigned int segmentId = 0; segmentId < segmentCount; ++segmentId )
+	for ( unsigned int sector = 0; sector < segmentCount; ++sector )
 	{
 		const double endAngle = beginAngle + stepAngle;
-		const uint32_t grayCode = m_bits[segmentId];
+		const uint32_t grayCode = m_bits[sector];
 
 		for ( int bit = 0; bit < m_nFactor; ++bit )
 		{
@@ -153,6 +155,68 @@ void GraysEncoder::Render( BLContext& ctx )
 		}
 		beginAngle = endAngle;
 	}
+#else 
+	//draw each track concentrically.
+	for( int track = 0; track < m_nFactor; ++track )
+	{
+		uint32_t numericWrap = 0;
+		uint32_t firstDrawn = UINT32_MAX;
+		uint32_t drawStart = UINT32_MAX;
+		uint32_t drawEnd = UINT32_MAX;
+
+		const double localRadius = m_invertTree
+			? m_innerRadius + (trackWidth * track)
+			: m_outerRadius - (trackWidth * (track + 1))
+			;
+
+		//draw arcs, go until we wrap back onto our first drawn arc.
+		for( uint32_t sectorThis = 0; ; sectorThis++ )
+		{
+ 			if( sectorThis >= segmentCount )
+			{
+				numericWrap++;
+				sectorThis = 0;
+				assert( numericWrap < 2 );
+			}
+
+			//we've wrapped.
+			if( sectorThis == firstDrawn )
+			{
+				break;
+			}
+
+			const uint32_t sectorLast = std::min( sectorThis - 1u, segmentCount - 1u );
+
+			const bool lastValue = (m_bits[sectorLast] & (0x1 << track)) != 0;
+			const bool thisValue = (m_bits[sectorThis] & (0x1 << track)) != 0;
+
+			if( lastValue == false && thisValue == true )
+			{
+				drawStart = sectorThis;
+			}
+			else if( drawStart != UINT32_MAX && thisValue == false )
+			{
+				drawEnd = sectorThis;
+			}
+	
+			if( drawStart != UINT32_MAX && drawEnd != UINT32_MAX )
+			{
+				if( firstDrawn == UINT32_MAX )
+				{
+					firstDrawn = drawStart;
+				}
+
+				const double beginAngle = drawStart * stepAngle;
+				const double endAngle = drawEnd * stepAngle;
+
+				DrawArcSegment( ctx, origin, localRadius, trackWidth, beginAngle, fabs( endAngle - beginAngle ) );
+				drawStart = UINT32_MAX;
+				drawEnd = UINT32_MAX;
+			}
+		}
+	}
+#endif //defined USE_SECTOR_RENDER
+
 
 	//------------------------------------------------------
 	//Instrumentation Passes

@@ -82,6 +82,9 @@ void PrintingService::InitPrintBuffer()
 //------------------------------------------------------------------------------
 void PrintingService::PrintPreview( QPrinter* printer )
 {
+	const QPageLayout layout = m_printer.pageLayout();
+	const QRectF pageRect = layout.paintRect( QPageLayout::Unit::Millimeter );
+
 	printer->setOutputFileName( "grayscode.ps" );
 	QPainter painter( printer );
 	painter.begin( printer );
@@ -95,7 +98,14 @@ void PrintingService::PrintPreview( QPrinter* printer )
 
 		const double x = ctx.targetWidth() * 0.5;
 		const double y = ctx.targetHeight() * 0.5;
+
+		const double widthInMm = pageRect.width();
+		const double pixelsPerMm = x / widthInMm;
+
 		ctx.translate( x, y );
+		ctx.scale( pixelsPerMm );
+
+		ctx.setFillStyle( BLRgba32( 0x00000000 ) );
 
 		m_renderer->Render( ctx );
 

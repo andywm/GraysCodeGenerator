@@ -114,9 +114,12 @@ void GraysEncoder::Render( BLContext& ctx )
 	ctx.setRenderingQuality( BL_RENDERING_QUALITY_ANTIALIAS );
 	ctx.setCompOp( BL_COMP_OP_SRC_OVER );
 	
-	//Clear Black
-	ctx.setFillStyle( BLRgba32( 0xFF000000 ) );
+	//Clear Buffer
 	ctx.fillAll();
+
+	//Black Circle
+	ctx.setFillStyle( BLRgba32( 0xFF000000 ) );
+	ctx.fillCircle( 0, 0, m_outerRadius );
 
 	//draw in white.
 	ctx.setFillStyle( BLRgba32( 0xFFFFFFFF ) );

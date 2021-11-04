@@ -38,7 +38,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "core/render_action.h"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-//#define USE_SECTOR_RENDER 1
 
 //------------------------------------------------------------------------------
 // Forwards
@@ -62,7 +61,7 @@ public:
 
 	actions::RenderAction& GetRenderAction();
 
-	void DrawArcSegment( BLContext& ctx, BLPoint& centre, float radius, float width, float startAngleDeg, float arcAngleDeg );
+	void DrawArcSegment( BLContext& ctx, float radius, float width, float startAngleDeg, float arcAngleDeg );
 
 	void SetGrayNumber( const uint8_t n );
 	void SetInnerRadius( const double rad );
@@ -82,4 +81,7 @@ private:
 
 	//Data
 	std::vector<unsigned int> m_bits;
+
+	QImage m_renderBuffer;
+	BLImage m_b2dRenderTarget;
 };

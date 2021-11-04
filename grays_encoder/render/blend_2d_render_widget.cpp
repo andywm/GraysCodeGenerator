@@ -155,6 +155,7 @@ void Blend2DRenderWidget::UpdateRenderBuffer()
 		ctx.scale( m_zoomLevel );
 
 		ctx.setFillStyle( BLRgba32( 0xFF000000 ) );
+		ctx.fillAll();
 
 		m_renderer->Render( ctx );
 	}

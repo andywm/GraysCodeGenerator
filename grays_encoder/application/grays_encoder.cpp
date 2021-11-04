@@ -58,13 +58,14 @@ GraysEncoder::GraysEncoder()
 //------------------------------------------------------------------------------
 void GraysEncoder::DrawArcSegment( 
 	BLContext& ctx,
-	BLPoint& centre,
 	float radius,
 	float width, 
 	float startAngleDeg, 
 	float arcAngleDeg 
 )
 {
+	BLPoint centre = { 0, 0 };
+
 	const double angleBEGIN = DegToRad( startAngleDeg );
 	const double arcLength = DegToRad( arcAngleDeg );
 	const double angleEND = angleBEGIN + arcLength;
@@ -109,53 +110,25 @@ void GraysEncoder::Render( BLContext& ctx )
 		Generate();
 	}
 
-	BLPoint origin = { 0, 0 };
-
 	//Render Options
-	ctx.setRenderingQuality( BL_RENDERING_QUALITY_ANTIALIAS );
 	ctx.setCompOp( BL_COMP_OP_SRC_OVER );
-	
-	//Clear Buffer
-	ctx.fillAll();
 
-	//Black Circle
+	//Draw background under the encoder ring
 	ctx.setFillStyle( BLRgba32( 0xFF000000 ) );
-	ctx.fillCircle( 0, 0, m_outerRadius );
+	DrawArcSegment( ctx, m_innerRadius + 1, m_outerRadius - m_innerRadius - 1.5, 0.0, 360.0 );
 
 	//draw in white.
 	ctx.setFillStyle( BLRgba32( 0xFFFFFFFF ) );
-	
+	ctx.setStrokeJoin( BL_STROKE_JOIN_MITER_BEVEL );
+
 	const int segmentCount = pow( 2, m_nFactor );
 	const double stepAngle = 360.0f / segmentCount;
 	const double radDifference = m_outerRadius - m_innerRadius;
 	const double trackWidth = radDifference / m_nFactor;
 	double beginAngle = 0;
 
-#if defined( USE_SECTOR_RENDER )
-	//iterates over the circle by each step angle. The inner loop handles different
-	//orbitals representing bits.
-	for ( unsigned int sector = 0; sector < segmentCount; ++sector )
-	{
-		const double endAngle = beginAngle + stepAngle;
-		const uint32_t grayCode = m_bits[sector];
+	int lastTrack = m_invertTree? m_nFactor-1 : 0;
 
-		for ( int bit = 0; bit < m_nFactor; ++bit )
-		{
-			double localRadius = m_invertTree
-				? m_innerRadius + (trackWidth * bit)
-				: m_outerRadius - (trackWidth * (bit+1))
-				;
-
-			if( (grayCode & (0x1 << bit)) == 0 )
-			{
-				continue;
-			}
-		
-			DrawArcSegment( ctx, origin, localRadius, trackWidth, beginAngle, fabs( endAngle - beginAngle ) );
-		}
-		beginAngle = endAngle;
-	}
-#else 
 	//draw each track concentrically.
 	for( int track = 0; track < m_nFactor; ++track )
 	{
@@ -208,15 +181,14 @@ void GraysEncoder::Render( BLContext& ctx )
 
 				const double beginAngle = drawStart * stepAngle;
 				const double endAngle = drawEnd * stepAngle;
+				const double overlaphack = track == lastTrack? 0 : 0.5;
 
-				DrawArcSegment( ctx, origin, localRadius, trackWidth, beginAngle, fabs( endAngle - beginAngle ) );
+				DrawArcSegment( ctx, localRadius, trackWidth + overlaphack, beginAngle, fabs( endAngle - beginAngle ) );
 				drawStart = UINT32_MAX;
 				drawEnd = UINT32_MAX;
 			}
 		}
 	}
-#endif //defined USE_SECTOR_RENDER
-
 
 	//------------------------------------------------------
 	//Instrumentation Passes
@@ -231,19 +203,19 @@ void GraysEncoder::Render( BLContext& ctx )
 	ctx.setStrokeWidth( 1 );
 
 	//Render concentric circles. (render helper lines around each track.)
-	for ( int track = 0; track <= m_nFactor; ++track )
+	for( int track = 0; track <= m_nFactor; ++track )
 	{
 		double radDifference = m_outerRadius - m_innerRadius;
 		double trackWidth = radDifference / m_nFactor;
 		double localRadius = m_innerRadius + (trackWidth * track);
 
-		ctx.strokeCircle( origin.x, origin.y, localRadius );
+		ctx.strokeCircle( 0, 0, localRadius );
 	}
 
 	// Radials. Render segmenting from the inner radius to the outer radius
 	// representing each bit on each track. 
 	beginAngle = 0;
-	for ( unsigned int segmentId = 0; segmentId < segmentCount; ++segmentId )
+	for( unsigned int segmentId = 0; segmentId < segmentCount; ++segmentId )
 	{
 		const double endAngle = beginAngle + stepAngle;
 		const double endPointAngRad = DegToRad( endAngle );
@@ -254,9 +226,9 @@ void GraysEncoder::Render( BLContext& ctx )
 		double endX = m_outerRadius * cosf( endPointAngRad );
 		double endY = m_outerRadius * sinf( endPointAngRad );
 
-		ctx.strokeLine( {begX, begY}, {endX, endY} );
+		ctx.strokeLine( { begX, begY }, { endX, endY } );
 		beginAngle = endAngle;
-	}
+	};	
 }
 
 //------------------------------------------------------------------------------

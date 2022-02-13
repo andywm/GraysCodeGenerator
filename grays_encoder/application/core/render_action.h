@@ -27,6 +27,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ------------------------------------------------------------------------------*/
 #pragma once
+#include <unordered_map>
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
@@ -46,6 +47,9 @@ namespace actions
 	{
 	public:
 		virtual void Render( BLContext& context ) = 0;
+
+		std::unordered_map<const char*, bool> options;
+		std::unordered_map<const char*, double> parameters;
 	};
 
 	template<class Base, void (Base::*renderFn)(BLContext&) >

@@ -74,8 +74,8 @@ void PrintingService::InitPrintBuffer()
 	const double width = m_printer.width();
 	const double height = m_printer.height();
 
-	m_renderBuffer = QImage( width, height, QImage::Format_ARGB32_Premultiplied );
-	m_b2dRenderTarget.createFromData( width, height, BL_FORMAT_PRGB32, m_renderBuffer.bits(), m_renderBuffer.bytesPerLine() );
+	m_renderBuffer = QImage( width*2, height*2, QImage::Format_ARGB32_Premultiplied );
+	m_b2dRenderTarget.createFromData( width*2, height*2, BL_FORMAT_PRGB32, m_renderBuffer.bits(), m_renderBuffer.bytesPerLine() );
 }
 
 //------------------------------------------------------------------------------
@@ -87,6 +87,7 @@ void PrintingService::PrintPreview( QPrinter* printer )
 
 	printer->setOutputFileName( "grayscode.ps" );
 	QPainter painter( printer );
+	
 	painter.begin( printer );
 
 	if ( m_renderer )
@@ -109,6 +110,7 @@ void PrintingService::PrintPreview( QPrinter* printer )
 
 		m_renderer->Render( ctx );
 
+		painter.scale( 0.5f, 0.5f );
 		painter.drawImage( QPoint( 0, 0 ), m_renderBuffer );
 	}
 

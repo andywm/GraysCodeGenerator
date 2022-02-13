@@ -99,6 +99,10 @@ void GraysEncoder::DrawArcSegment(
 	path.lineTo( p1 );
 
 	ctx.fillPath( path );
+
+	static double val = 0.2f;
+	ctx.setStrokeWidth( val );
+	ctx.strokePath( path );
 }
 
 //------------------------------------------------------------------------------
@@ -111,15 +115,25 @@ void GraysEncoder::Render( BLContext& ctx )
 	}
 
 	//Render Options
-	ctx.setCompOp( BL_COMP_OP_SRC_OVER );
+	static int test = BL_COMP_OP_SRC_OVER;// BL_COMP_OP_PLUS;
+
+	ctx.setCompOp( test /*BL_COMP_OP_SRC_OVER*/ );
 
 	//Draw background under the encoder ring
-	ctx.setFillStyle( BLRgba32( 0xFF000000 ) );
+	//BLRgba32 backColour = BLRgba32( 0xFF000000 );
+	BLRgba32 backColour = BLRgba32( 0xFFFFFFFF );
+
+
+	ctx.setFillStyle( backColour );
+	ctx.setStrokeStyle( backColour );
+	ctx.setStrokeJoin( BL_STROKE_JOIN_MITER_BEVEL );
 	DrawArcSegment( ctx, m_innerRadius + 1, m_outerRadius - m_innerRadius - 1.5, 0.0, 360.0 );
 
 	//draw in white.
-	ctx.setFillStyle( BLRgba32( 0xFFFFFFFF ) );
-	ctx.setStrokeJoin( BL_STROKE_JOIN_MITER_BEVEL );
+	BLRgba32 foreColour = BLRgba32( 0xFF000000 );
+	//BLRgba32 foreColour = BLRgba32( 0xFFFFFFFF );
+	ctx.setFillStyle( foreColour );
+	ctx.setStrokeStyle( foreColour );
 
 	const int segmentCount = pow( 2, m_nFactor );
 	const double stepAngle = 360.0f / segmentCount;
@@ -181,9 +195,8 @@ void GraysEncoder::Render( BLContext& ctx )
 
 				const double beginAngle = drawStart * stepAngle;
 				const double endAngle = drawEnd * stepAngle;
-				const double overlaphack = track == lastTrack? 0 : 0.5;
 
-				DrawArcSegment( ctx, localRadius, trackWidth + overlaphack, beginAngle, fabs( endAngle - beginAngle ) );
+				DrawArcSegment( ctx, localRadius, trackWidth, beginAngle, fabs( endAngle - beginAngle ) );
 				drawStart = UINT32_MAX;
 				drawEnd = UINT32_MAX;
 			}
